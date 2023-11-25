@@ -1,7 +1,8 @@
 import os
-from flask import Flask, render_template, request, redirect
+import csv
+from flask import Flask, render_template, request, redirect, url_for
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 # Definindo a variável de ambiente
 os.environ['FLASK_DEBUG'] = 'True'
@@ -27,8 +28,8 @@ def sobre():
     return render_template('sobre.html')
 
 
-if _name_ == "_main_":
-    app.run()
+if __name__ == "_main_":
+    app.run(debug=True)
 
 
 @app.route('/novo_termo')
@@ -58,7 +59,7 @@ def novo_termo():
     return render_template('adicionar_termo.html')
 
 
-@app.route(rule:'/criar_termo', methods=['POST', ])
+@app.route('/criar_termo', methods=['POST', ])
 def criar_termo():
     termo = request.form['termo']
     definicao = request.form['definicao']
