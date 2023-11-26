@@ -1,58 +1,37 @@
 import os
 import csv
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, request
+from flask import render_template, url_for, redirect
 
 app = Flask(__name__)
 
-# Definindo a variável de ambiente
+# Preparação para ambiente Flask em Desenvolvimento
 os.environ['FLASK_DEBUG'] = 'True'
-
-# Configurando o modo de depuração com base na variável de ambiente
 app.debug = os.environ.get('FLASK_DEBUG') == 'True'
 
-# Teste de Glossário
-glossario = [
-    ['Internet', 'Acessar internet'],
-    ['Java', 'Pior linguagem de Programação'],
-    ['Python', 'Melhor linguagem']
-             ]
 
-
+# Rotas do Projeto
 @app.route('/')
-def ola():
-    return render_template('index.html', glossario=glossario)
+def index():
+    '''Listar o glossário!'''
 
-
-@app.route('/sobre-equipe')
-def sobre():
-    return render_template('sobre.html')
-
-
-if __name__ == "_main_":
-    app.run(debug=True)
-
-
-@app.route('/novo_termo')
-def novo_termo():
-    return render_template('adicionar_termo.html')
-
-
-@app.route('/glossario')
-def glossario():
-
+    # Criação de lista vazia
     glossario_de_termos = []
 
+    # Abrir o arquivo e colocá-lo dentro da lista
     with open(
-            'bd_glossario.csv',
-            newline='', enconding='utf-8') as arquivo:
-        reader = csv.reader(arquivo, delimiter=';')
-        for l in reader:
-            glossario_de_termos.append(l)
+            'bd_glossario.csv.txt',
+            newline='',
+            encoding='utf-8') as arquivo:
+
+        leitor = csv.reader(arquivo, delimiter=';')
+
+        for linha in leitor:
+            glossario_de_termos.append(linha)
 
     return render_template(
-        'glossario.html',
-        glossario=glossario_de_termos)
-
+        'index.html',
+        glossario_de_termos=glossario_de_termos)
 
 @app.route('/novo_termo')
 def novo_termo():
@@ -61,11 +40,42 @@ def novo_termo():
 
 @app.route('/criar_termo', methods=['POST', ])
 def criar_termo():
+
     termo = request.form['termo']
     definicao = request.form['definicao']
 
-    with open('bd_glossario.csv', 'a', newline='', encoding='utf-8') as arquivo:
-        writer = csv.writer(arquivo, delimiter=';')
-        writer.writerow([termo, definicao])
+    with open(
+            'bd_glossario.csv.txt',
+            'a',
+            newline='',
+            encoding='utf-8') as arquivo:
+        escritor = csv.writer(arquivo, delimiter=';')
+        escritor.writerow([termo, definicao])
 
-    return redirect(url_for('ola'))
+        return redirect(url_for('index'))
+
+@app.route('/excluir_termo/<int:termo_id>', methods=['POST', ])
+def excluir_termo(termo_id):
+
+    with open(
+            'bd_glossario.csv.txt', 'r',
+            newline='', encoding='utf-8') as arquivo:
+        leitor = csv.reader(arquivo)
+        linhas = list(leitor)
+
+    for i, linha in enumerate(linhas):
+        if i == termo_id:
+            del linhas[i]
+            break
+
+    with open(
+            'bd_glossario.csv.txt', 'w',
+            newline='', encoding='utf-8') as arquivo:
+        escritor = csv.writer(arquivo)
+        escritor.writerows(linhas)
+
+        return redirect(url_for('index'))
+
+
+if __name__ == '__main__':
+    app.run()
