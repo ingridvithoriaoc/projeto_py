@@ -5,12 +5,12 @@ from flask import render_template, url_for, redirect
 
 app = Flask(__name__)
 
-# Preparação para ambiente Flask em Desenvolvimento
+
 os.environ['FLASK_DEBUG'] = 'True'
 app.debug = os.environ.get('FLASK_DEBUG') == 'True'
 
 
-# Rotas do Projeto
+
 @app.route('/')
 def index():
     
@@ -85,7 +85,6 @@ def listar_termo():
         'glossario.html',
         glossario_de_termos=glossario_de_termos)
     
-        #return render_template('glossario.html')
 
 @app.route("/sobre")
 def sobre():
